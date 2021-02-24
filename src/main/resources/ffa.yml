@@ -1,0 +1,55 @@
+#example
+#test:
+#  position: [100,0,150,200,255,250,150,100,100,200,world]
+#  equipment:
+#    - id: 1
+#      meta: 0
+#      name: test
+#      lore: lore
+#      enchantment:
+#        - id: 1
+#          level: 1
+#      count: 64
+#  armor: #没有盔甲就全部id写0
+#    - id: xxx #头
+#      enchantment:
+#        - id: 1
+#          level: 1
+#    - id: xxx #胸
+#      enchantment: null # enchantment没有就写null,不能不写！
+#    - id: xxx #裤
+#      enchantment: null
+#    - id: xxx #腿
+#      enchantment: null
+#  allow-attack-damage: true
+#  allow-break-block: false
+#  allow-place-block: false
+#  blood-back-when-kill: true
+#  reset-equipment-when-kill: true
+#  join-title: testjoin
+#  join-subtitle: testjoin
+#  join-message: testjoin
+#  join-actionbar: testjoin
+#  exit-title: testexit
+#  exit-subtitle: testexit
+#  exit-message: testexit
+#  exit-actionbar: testexitac: 10
+#  kill-title: killtest
+#  kill-subtitle: killtest
+#  kill-message: killtest
+#  kill-actionbar: killtest
+#  ac: 5
+#  basekb: 0.4 #这个别改
+#  xzkb-g: 0.33
+#  ykb-g: 0.65
+#  xzkb: 0.33
+#  ykb: 0.65
+#  player-max-health: 20
+#  kill-broad-cast:
+#    open: true
+#    text: Player {Damager} killed {Dead}!
+#  clear-items:
+#    open: true
+#    time: 2 #(单位:s)
+#  money-give-count-when-kill: 1
+#  money-remove-count-when-dead: 1
