@@ -20,7 +20,6 @@ import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.utils.Config;
 import me.onebone.economyapi.EconomyAPI;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -511,6 +510,7 @@ public class FFAArea {
         @Override
         public void onRun(int i) {
             player.teleport(player.getSpawn());
+            player.setGamemode(0);
         }
     }
 }
