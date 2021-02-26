@@ -281,11 +281,20 @@ public class FFAArea {
                 return;
             }
             if (event.getEntity().getHealth() - event.getFinalDamage() < 1){
+                event.setCancelled();
+
                 Player damager = (Player) event.getDamager();
                 Player entity = (Player)event.getEntity();
+
+                entity.setGamemode(3);
+                entity.setHealth(entity.getMaxHealth());
+                entity.sendActionBar("spawn in 5 second...");
+                Server.getInstance().getScheduler().scheduleDelayedTask(new DeadTask(entity),20 * 5);
+
                 damager.sendTitle(FFAArea.this.killTitle,FFAArea.this.killSubTitle);
                 damager.sendMessage(FFAArea.this.killMessage);
                 damager.sendActionBar(FFAArea.this.killActionbar);
+
                 if (FFAArea.this.bloodBackWhenKill)
                     damager.setHealth(damager.getMaxHealth());
                 if (FFAArea.this.killBroadCast)
@@ -301,13 +310,16 @@ public class FFAArea {
                         t.printStackTrace();
                     }
                 }
+
                 //spawn light
                 EntityLightning lightning = new EntityLightning(entity.getPosition().getChunk(),EntityLightning.getDefaultNBT(entity.getPosition()));
                 lightning.setEffect(false);
                 lightning.spawnToAll();
+
                 //give/remove money
                 EconomyAPI.getInstance().addMoney(damager,moneyGiveCountWhenKill);
                 EconomyAPI.getInstance().reduceMoney(entity,moneyRemoveCountWhenKill);
+
 //                entity.teleport(FFAArea.this.getTeleportPosition());
 //                FFAArea.this.joinFFAArea(entity);
             }
@@ -485,5 +497,20 @@ public class FFAArea {
         }
         player.setMaxHealth(20);
         player.setHealth(20);
+    }
+
+    private class DeadTask extends PluginTask{
+
+        private Player player;
+
+        public DeadTask(Player player){
+            super(PluginMain.getInstance());
+            this.player = player;
+        }
+
+        @Override
+        public void onRun(int i) {
+            player.teleport(player.getSpawn());
+        }
     }
 }
