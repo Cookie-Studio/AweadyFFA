@@ -1,6 +1,8 @@
 package cn.cookiestudio.aweadyffa.commands;
 
 import cn.cookiestudio.aweadyffa.FElementButton;
+import cn.cookiestudio.aweadyffa.PlayerSettings;
+import cn.cookiestudio.aweadyffa.PluginMain;
 import cn.cookiestudio.easy4form.window.BFormWindowSimple;
 import cn.nukkit.Player;
 import cn.nukkit.command.Command;
@@ -18,8 +20,8 @@ public class FFACommand extends Command {
             if (e.getResponse() == null)
                 return;
             FElementButton fElementButton = (FElementButton) ((FormResponseSimple)e.getResponse()).getClickedButton();
-            e.getPlayer().teleport(fElementButton.getFfaArea().getTeleportPosition());
-            fElementButton.getFfaArea().joinFFAArea(e.getPlayer());
+            PlayerSettings.Entry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(e.getPlayer().getName());
+            fElementButton.getFfaArea().joinAndTp(e.getPlayer(), entry.isRandomTp());
         });
     }
 

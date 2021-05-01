@@ -1,5 +1,6 @@
 package cn.cookiestudio.aweadyffa;
 
+import cn.cookiestudio.aweadyffa.commands.ChangeSettingCommand;
 import cn.cookiestudio.aweadyffa.commands.GetWorldName;
 import cn.cookiestudio.aweadyffa.commands.KBACCommand;
 import cn.cookiestudio.aweadyffa.utils.ConfigCopy;
@@ -7,6 +8,7 @@ import cn.nukkit.Server;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.Config;
+import com.google.gson.Gson;
 import lombok.Getter;
 import cn.cookiestudio.aweadyffa.commands.FFACommand;
 
@@ -19,8 +21,11 @@ import java.util.HashMap;
 public class PluginMain extends PluginBase {
     @Getter
     private static PluginMain instance;
+    @Getter
+    private static Gson GSON = new Gson();
     private Config ffaConfig;
     private HashMap<String, FFAArea> ffaAreas = new HashMap<>();
+    private PlayerSettings playerSettings = new PlayerSettings();
 
     @Override
     public void onLoad() {
@@ -55,6 +60,7 @@ public class PluginMain extends PluginBase {
 
     @Override
     public void onDisable() {
+        playerSettings.close();
         this.getLogger().info("Plugin disable!");
     }
 
@@ -79,5 +85,6 @@ public class PluginMain extends PluginBase {
         Server.getInstance().getCommandMap().register("",new FFACommand("ffa"));
         Server.getInstance().getCommandMap().register("",new KBACCommand("kbac"));
         Server.getInstance().getCommandMap().register("",new GetWorldName("getwn"));
+        Server.getInstance().getCommandMap().register("",new ChangeSettingCommand("ffaset"));
     }
 }

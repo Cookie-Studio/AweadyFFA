@@ -17,8 +17,12 @@ import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
+import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Position;
+import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.Vector3;
+import cn.nukkit.math.Vector3f;
+import cn.nukkit.network.protocol.SpawnParticleEffectPacket;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.utils.Config;
@@ -28,6 +32,7 @@ import me.onebone.economyapi.EconomyAPI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 @Getter
 @Setter
@@ -130,7 +135,7 @@ public class FFAArea {
         Server.getInstance().getScheduler().scheduleRepeatingTask(this.new FFAAreaTask(PluginMain.getInstance()),5);
     }
 
-    public void joinFFAArea(Player player){
+    public void join(Player player){
         this.players.add(player);
         player.removeAllEffects();
         player.getInventory().clearAll();
@@ -151,19 +156,31 @@ public class FFAArea {
         Server.getInstance().getScheduler().scheduleRepeatingTask(new JoinTask(PluginMain.getInstance(),player),1);
     }
 
+    public void joinAndTp(Player player,boolean randomTp){
+        if (randomTp)
+            player.teleport(getRandomTeleportPosition());
+        else
+            player.teleport(getTeleportPosition());
+        join(player);
+    }
+
     public Position getTeleportPosition(){
-//        Position position = getRandomPosition();
-//        while(!(position.getLevelBlock().getId() == 0 && position.add(0,1,0).getLevelBlock().getId() == 0))
-//            position = getRandomPosition();
         return this.position3;
     }
 
-//    private Position getRandomPosition(){
-//        Random r = new Random(114514);
-//        double x = r.nextInt((int) (position2.x - position1.x)) + 1 + position1.x;
-//        double z = r.nextInt((int) (position2.z - position1.z)) + 1 + position1.z;
-//        return new Position(x,position3.y,z, position3.level);
-//    }
+    public Position getRandomTeleportPosition(){
+        Position position = getRandomPosition();
+        while(!(position.getLevelBlock().getId() == 0 && position.add(0,1,0).getLevelBlock().getId() == 0))
+            position = getRandomPosition();
+        return this.position3;
+    }
+
+    private Position getRandomPosition(){
+        Random r = new Random();
+        double x = r.nextInt((int) (position2.x - position1.x)) + 1 + position1.x;
+        double z = r.nextInt((int) (position2.z - position1.z)) + 1 + position1.z;
+        return new Position(x,position3.y,z, position3.level);
+    }
 
     public FFAAreaKBInfo getFfaAreaKBInfo() {
         return ffaAreaKBInfo;
@@ -229,6 +246,14 @@ public class FFAArea {
 //                FFAArea.this.joinFFAArea(entity);
 
                 Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
+                return;
+            }
+            if (PluginMain.getInstance().getPlayerSettings().getSettings().get((Player)event.getDamager()).showAttackParticle){
+                Vector3f spawn = event.getEntity().getPosition().asVector3f();
+                SpawnParticleEffectPacket packet = new SpawnParticleEffectPacket();
+                packet.position = spawn;
+                packet.identifier = ParticleEffect.CRITICAL_HIT.getIdentifier();
+                ((Player)event.getDamager()).dataPacket(packet);
             }
         }
 
@@ -289,7 +314,7 @@ public class FFAArea {
         public void onRun(int i) {
             for (Player player : position1.level.getPlayers().values()){
                 if (!FFAArea.this.players.contains(player) && FFAArea.this.isInArea(player))
-                    FFAArea.this.joinFFAArea(player);
+                    FFAArea.this.join(player);
                 if (FFAArea.this.players.contains(player) && !FFAArea.this.isInArea(player)){
                     FFAArea.this.exitFFAArea(player);
                 }
