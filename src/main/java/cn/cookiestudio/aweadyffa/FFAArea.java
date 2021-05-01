@@ -248,7 +248,7 @@ public class FFAArea {
                 Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
                 return;
             }
-            if (PluginMain.getInstance().getPlayerSettings().getSettings().get((Player)event.getDamager()).showAttackParticle){
+            if (PluginMain.getInstance().getPlayerSettings().getSettings().get((Player)event.getDamager()).isShowAttackParticle()){
                 Vector3f spawn = event.getEntity().getPosition().asVector3f();
                 SpawnParticleEffectPacket packet = new SpawnParticleEffectPacket();
                 packet.position = spawn;

@@ -1,6 +1,6 @@
 name: AweadyFFA
 main: top.smartcmd.aweadyffa.PluginMain
-version: "1.0.7"
+version: "1.0.8"
 author: smart_cmd
 api: ["1.0.11"]
 #fix some bug

@@ -3,6 +3,7 @@ package cn.cookiestudio.aweadyffa;
 import cn.cookiestudio.aweadyffa.commands.ChangeSettingCommand;
 import cn.cookiestudio.aweadyffa.commands.GetWorldName;
 import cn.cookiestudio.aweadyffa.commands.KBACCommand;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettings;
 import cn.cookiestudio.aweadyffa.utils.ConfigCopy;
 import cn.nukkit.Server;
 import cn.nukkit.level.Position;
@@ -11,7 +12,6 @@ import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import lombok.Getter;
 import cn.cookiestudio.aweadyffa.commands.FFACommand;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

@@ -1,14 +1,12 @@
-package cn.cookiestudio.aweadyffa;
+package cn.cookiestudio.aweadyffa.playersetting;
 
+import cn.cookiestudio.aweadyffa.PluginMain;
 import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
 import cn.nukkit.utils.Config;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -18,7 +16,7 @@ import java.util.Map;
 public class PlayerSettings {
 
     private Config config;
-    private Map<String,Entry> settings = new HashMap<>();
+    private Map<String,PlayerSettingEntry> settings = new HashMap<>();
 
     public PlayerSettings(){
         try {
@@ -32,14 +30,14 @@ public class PlayerSettings {
                 String name = event.getPlayer().getName();
                 if (!settings.containsKey(name)){
                     if (!existInFile(name)){
-                        Entry entry = Entry.builder().build();
+                        PlayerSettingEntry entry = PlayerSettingEntry.builder().build();
                         settings.put(name,entry);
                     }else{
                         cache(name);
                     }
                 }
             }
-        },PluginMain.getInstance());
+        }, PluginMain.getInstance());
     }
 
     public void init() throws Exception {
@@ -49,22 +47,22 @@ public class PlayerSettings {
         this.config = new cn.nukkit.utils.Config(p.toFile(),Config.JSON);
     }
 
-    public Entry cache(String name){
+    public PlayerSettingEntry cache(String name){
         String key = name;
-        Entry e = Entry.builder()
+        PlayerSettingEntry e = PlayerSettingEntry.builder()
                 .showAttackParticle(config.getBoolean(key + ".showAttackParticle"))
                 .randomTp(config.getBoolean(key + ".randomTp")).build();
         settings.put(name,e);
         return e;
     }
 
-    public void write(String name,Entry entry){
+    public void write(String name,PlayerSettingEntry entry){
         config.set(name,PluginMain.getInstance().getGSON().toJson(entry));
         config.save();
     }
 
     public void writeAll(){
-        for (Map.Entry<String,Entry> e : getSettings().entrySet())
+        for (Map.Entry<String,PlayerSettingEntry> e : getSettings().entrySet())
             write(e.getKey(),e.getValue());
     }
 
@@ -74,13 +72,5 @@ public class PlayerSettings {
 
     public void close(){
         writeAll();
-    }
-
-    @Builder
-    @Getter
-    @Setter
-    public class Entry{
-        boolean showAttackParticle;
-        boolean randomTp;
     }
 }
