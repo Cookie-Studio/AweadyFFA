@@ -1,4 +1,4 @@
-package top.smartcmd.aweadyffa;
+package cn.cookiestudio.aweadyffa;
 
 import cn.nukkit.form.element.ElementButton;
 

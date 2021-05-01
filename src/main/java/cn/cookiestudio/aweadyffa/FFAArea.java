@@ -1,7 +1,8 @@
-package top.smartcmd.aweadyffa;
+package cn.cookiestudio.aweadyffa;
 
 import cn.nukkit.Player;
 import cn.nukkit.Server;
+import cn.nukkit.entity.Attribute;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.item.EntityItem;
 import cn.nukkit.entity.weather.EntityLightning;
@@ -10,7 +11,9 @@ import cn.nukkit.event.EventPriority;
 import cn.nukkit.event.block.BlockBreakEvent;
 import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
+import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityMotionEvent;
+import cn.nukkit.event.player.PlayerDeathEvent;
 import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
@@ -19,11 +22,15 @@ import cn.nukkit.math.Vector3;
 import cn.nukkit.plugin.Plugin;
 import cn.nukkit.scheduler.PluginTask;
 import cn.nukkit.utils.Config;
+import lombok.Getter;
+import lombok.Setter;
 import me.onebone.economyapi.EconomyAPI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+@Getter
+@Setter
 public class FFAArea {
     private ArrayList<Item> ffaItems = new ArrayList<>();
     private ArrayList<Item> ffaArmors = new ArrayList<>();
@@ -58,121 +65,9 @@ public class FFAArea {
     private int moneyGiveCountWhenKill;
     private int moneyRemoveCountWhenKill;
 
-    public ArrayList<Item> getFfaItems() {
-        return ffaItems;
-    }
-
-    public ArrayList<Item> getFfaArmors() {
-        return ffaArmors;
-    }
-
-    public Position getPosition1() {
-        return position1;
-    }
-
-    public Position getPosition2() {
-        return position2;
-    }
-
-    public Position getPosition3() {
-        return position3;
-    }
-
-    public boolean isAllowAttackDamage() {
-        return allowAttackDamage;
-    }
-
-    public boolean isBloodBackWhenKill() {
-        return bloodBackWhenKill;
-    }
-
-    public boolean isAllowBreakBlock() {
-        return allowBreakBlock;
-    }
-
-    public boolean isAllowPlaceBlock() {
-        return allowPlaceBlock;
-    }
-
-    public boolean isKillBroadCast() {
-        return killBroadCast;
-    }
-
-    public boolean isClearItems() {
-        return clearItems;
-    }
-
-    public String getAreaName() {
-        return areaName;
-    }
-
-    public HashSet<Player> getPlayers() {
-        return players;
-    }
-
-    public String getJoinTitle() {
-        return joinTitle;
-    }
-
-    public String getJoinSubTitle() {
-        return joinSubTitle;
-    }
-
-    public String getJoinMessage() {
-        return joinMessage;
-    }
-
-    public String getJoinActionbar() {
-        return joinActionbar;
-    }
-
-    public String getExitTitle() {
-        return exitTitle;
-    }
-
-    public String getExitSubTitle() {
-        return exitSubTitle;
-    }
-
-    public String getExitMessage() {
-        return exitMessage;
-    }
-
-    public String getExitActionbar() {
-        return exitActionbar;
-    }
-
-    public String getKillTitle() {
-        return killTitle;
-    }
-
-    public String getKillSubTitle() {
-        return killSubTitle;
-    }
-
-    public String getKillMessage() {
-        return killMessage;
-    }
-
-    public String getKillActionbar() {
-        return killActionbar;
-    }
-
-    public String getKillBroadCastText() {
-        return killBroadCastText;
-    }
-
-    public int getPlayerMaxHealth() {
-        return playerMaxHealth;
-    }
-
-    public int getClearItemsTime() {
-        return clearItemsTime;
-    }
-
     public FFAArea(String name){
         this.areaName = name;
-        Config config = PluginMain.getInstance().getFFAConfig();
+        Config config = PluginMain.getInstance().getFfaConfig();
         ArrayList posInfo = (ArrayList) config.get(name + ".position");
         position1 = new Position((int) posInfo.get(0),(int)posInfo.get(1),(int)posInfo.get(2), Server.getInstance().getLevelByName((String)posInfo.get(9)));
         position2 = new Position((int)posInfo.get(3),(int)posInfo.get(4),(int)posInfo.get(5), Server.getInstance().getLevelByName((String)posInfo.get(9)));
@@ -252,11 +147,23 @@ public class FFAArea {
         player.sendActionBar(this.joinActionbar);
         player.setMaxHealth(playerMaxHealth);
         player.setHealth(playerMaxHealth);
+
+        Server.getInstance().getScheduler().scheduleRepeatingTask(new JoinTask(PluginMain.getInstance(),player),1);
     }
 
     public Position getTeleportPosition(){
+//        Position position = getRandomPosition();
+//        while(!(position.getLevelBlock().getId() == 0 && position.add(0,1,0).getLevelBlock().getId() == 0))
+//            position = getRandomPosition();
         return this.position3;
     }
+
+//    private Position getRandomPosition(){
+//        Random r = new Random(114514);
+//        double x = r.nextInt((int) (position2.x - position1.x)) + 1 + position1.x;
+//        double z = r.nextInt((int) (position2.z - position1.z)) + 1 + position1.z;
+//        return new Position(x,position3.y,z, position3.level);
+//    }
 
     public FFAAreaKBInfo getFfaAreaKBInfo() {
         return ffaAreaKBInfo;
@@ -285,10 +192,14 @@ public class FFAArea {
                 Player damager = (Player) event.getDamager();
                 Player entity = (Player)event.getEntity();
 
-                entity.setGamemode(3);
                 entity.setHealth(entity.getMaxHealth());
-                entity.sendActionBar("spawn in 5 second...");
-                Server.getInstance().getScheduler().scheduleDelayedTask(new DeadTask(entity),20 * 5);
+
+                //spawn light
+                EntityLightning lightning = new EntityLightning(entity.getPosition().getChunk(),EntityLightning.getDefaultNBT(entity.getPosition()));
+                lightning.setEffect(false);
+                lightning.spawnToAll();
+
+                cn.cookiestudio.lobbysystem.PluginMain.getInstance().getLobby().teleportPlayerToLobby(entity);
 
                 damager.sendTitle(FFAArea.this.killTitle,FFAArea.this.killSubTitle);
                 damager.sendMessage(FFAArea.this.killMessage);
@@ -310,17 +221,14 @@ public class FFAArea {
                     }
                 }
 
-                //spawn light
-                EntityLightning lightning = new EntityLightning(entity.getPosition().getChunk(),EntityLightning.getDefaultNBT(entity.getPosition()));
-                lightning.setEffect(false);
-                lightning.spawnToAll();
-
                 //give/remove money
                 EconomyAPI.getInstance().addMoney(damager,moneyGiveCountWhenKill);
                 EconomyAPI.getInstance().reduceMoney(entity,moneyRemoveCountWhenKill);
 
 //                entity.teleport(FFAArea.this.getTeleportPosition());
 //                FFAArea.this.joinFFAArea(entity);
+
+                Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
             }
         }
 
@@ -418,8 +326,8 @@ public class FFAArea {
 
         public void setAc(int ac) {
             this.ac = ac;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".ac",ac);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".ac",ac);
+            PluginMain.getInstance().getFfaConfig().save();
         }
 
         public double getBaseKB() {
@@ -428,8 +336,8 @@ public class FFAArea {
 
         public void setBaseKB(double baseKB) {
             this.baseKB = baseKB;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".basekb",baseKB);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".basekb",baseKB);
+            PluginMain.getInstance().getFfaConfig().save();
         }
 
         public double getXzkb_g() {
@@ -438,8 +346,8 @@ public class FFAArea {
 
         public void setXzkb_g(double xzkb_g) {
             this.xzkb_g = xzkb_g;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".xzkb-g",xzkb_g);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".xzkb-g",xzkb_g);
+            PluginMain.getInstance().getFfaConfig().save();
         }
 
         public double getYkb_g() {
@@ -448,8 +356,8 @@ public class FFAArea {
 
         public void setYkb_g(double ykb_g) {
             this.ykb_g = ykb_g;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".ykb-g",ykb_g);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".ykb-g",ykb_g);
+            PluginMain.getInstance().getFfaConfig().save();
         }
 
         public double getXzkb() {
@@ -458,8 +366,8 @@ public class FFAArea {
 
         public void setXzkb(double xzkb) {
             this.xzkb = xzkb;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".xzkb",xzkb);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".xzkb",xzkb);
+            PluginMain.getInstance().getFfaConfig().save();
         }
 
         public double getYkb() {
@@ -468,8 +376,8 @@ public class FFAArea {
 
         public void setYkb(double ykb) {
             this.ykb = ykb;
-            PluginMain.getInstance().getFFAConfig().set(areaName + ".ykb",ykb);
-            PluginMain.getInstance().getFFAConfig().save();
+            PluginMain.getInstance().getFfaConfig().set(areaName + ".ykb",ykb);
+            PluginMain.getInstance().getFfaConfig().save();
         }
     }
 
@@ -490,7 +398,7 @@ public class FFAArea {
         player.sendMessage(this.exitMessage);
         player.sendActionBar(this.exitActionbar);
         player.setGamemode(2);
-        if (!PluginMain.getInstance().isPositionInFFAArea(player)){
+        if (!PluginMain.getInstance().isPositionInFFAArea(player) && !cn.cookiestudio.lobbysystem.PluginMain.getInstance().getLobby().isPositionInLobby(player)){
             player.removeAllEffects();
             player.getInventory().clearAll();
         }
@@ -498,19 +406,57 @@ public class FFAArea {
         player.setHealth(20);
     }
 
-    private class DeadTask extends PluginTask{
+//    private class DeadTask extends PluginTask{
+//
+//        private Player player;
+//
+//        public DeadTask(Player player){
+//            super(PluginMain.getInstance());
+//            this.player = player;
+//        }
+//
+//        @Override
+//        public void onRun(int i) {
+//            cn.cookiestudio.lobbysystem.PluginMain.getInstance().getLobby().teleportPlayerToLobby(player);
+//            player.setGamemode(0);
+//        }
+//    }
+
+    private class JoinTask extends PluginTask{
 
         private Player player;
+        private double keepTime = 2.5 * 20;
+        private int currentTime = 0;
 
-        public DeadTask(Player player){
-            super(PluginMain.getInstance());
+        public JoinTask(Plugin owner,Player player) {
+            super(owner);
             this.player = player;
+            Server.getInstance().getPluginManager().registerEvents(new Listener(),PluginMain.getInstance());
         }
 
         @Override
         public void onRun(int i) {
-            player.teleport(player.getSpawn());
-            player.setGamemode(0);
+            this.player.setAttribute(Attribute.getAttribute(10).setValue(1.0F * (float)((keepTime - currentTime) / keepTime)));
+            this.player.sendExperienceLevel((int)((keepTime - currentTime) / 20));
+            this.currentTime++;
+            if (this.currentTime > this.keepTime)
+                this.cancel();
+        }
+
+        private class Listener implements cn.nukkit.event.Listener{
+            @EventHandler
+            public void onEntityDamage(EntityDamageEvent event){
+                if (!(event.getEntity() == JoinTask.this.player && !JoinTask.this.getHandler().isCancelled()))
+                    return;
+                event.setCancelled();
+            }
+
+            @EventHandler
+            public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
+                if (!(event.getDamager() == JoinTask.this.player && !JoinTask.this.getHandler().isCancelled()))
+                    return;
+                event.setCancelled();
+            }
         }
     }
 }

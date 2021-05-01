@@ -1,4 +1,4 @@
-package top.smartcmd.aweadyffa.commands;
+package cn.cookiestudio.aweadyffa.commands;
 
 import cn.nukkit.Player;
 import cn.nukkit.command.Command;

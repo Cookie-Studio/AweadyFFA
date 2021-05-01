@@ -1,23 +1,44 @@
-package top.smartcmd.aweadyffa;
+package cn.cookiestudio.aweadyffa.commands;
 
-import cn.nukkit.event.EventHandler;
-import cn.nukkit.event.player.PlayerFormRespondedEvent;
+import cn.cookiestudio.easy4form.window.BFormWindowCustom;
+import cn.nukkit.Player;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.CommandSender;
+import cn.nukkit.command.ConsoleCommandSender;
+import cn.nukkit.form.element.ElementDropdown;
+import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.form.response.FormResponseCustom;
-import cn.nukkit.form.response.FormResponseSimple;
+import cn.cookiestudio.aweadyffa.FFAArea;
+import cn.cookiestudio.aweadyffa.PluginMain;
 
-public class FormListener implements cn.nukkit.event.Listener {
-    @EventHandler
-    public void onPlayerFormResponded(PlayerFormRespondedEvent event){
-        if (event.getResponse() == null)
-            return;
-        if (event.getFormID() == PluginMain.getInstance().getFFAFormId()){
-            FElementButton fElementButton = (FElementButton) ((FormResponseSimple)event.getResponse()).getClickedButton();
-            event.getPlayer().teleport(fElementButton.getFfaArea().getTeleportPosition());
-            fElementButton.getFfaArea().joinFFAArea(event.getPlayer());
-            return;
-        }
-        if (event.getFormID() == PluginMain.getInstance().getKbacFormId()){
-            FormResponseCustom response = (FormResponseCustom) event.getResponse();
+import java.util.ArrayList;
+import java.util.Arrays;
+
+public class KBACCommand extends Command {
+
+    private static BFormWindowCustom formWindowCustom = new BFormWindowCustom("kbac settings");
+
+    static{
+        formWindowCustom.addElement(new ElementDropdown("选择一个FFAArea",Arrays.asList(PluginMain.getInstance().getFfaAreas().keySet().toArray(new String[0]))));
+        ArrayList<String> list = new ArrayList<>();
+        list.add("basekb");
+        list.add("xzkb");
+        list.add("ykb");
+        list.add("xzkb-g");
+        list.add("ykb-g");
+        list.add("ac");
+        formWindowCustom.addElement(new ElementDropdown("选择参数类型",list));
+        ArrayList<String> list2 = new ArrayList<>();
+        list2.add("set");
+        list2.add("add");
+        list2.add("get");
+        formWindowCustom.addElement(new ElementDropdown("选择一个操作",list2));
+        formWindowCustom.addElement(new ElementInput("输入数值（get操作这里请留空）"));
+
+        formWindowCustom.setResponseAction((e) -> {
+            if (e.getResponse() == null)
+                return;
+            FormResponseCustom response = (FormResponseCustom) e.getResponse();
             String ffaArea = response.getDropdownResponse(0).getElementContent();
             String type = response.getDropdownResponse(1).getElementContent();
             String option = response.getDropdownResponse(2).getElementContent();
@@ -28,98 +49,123 @@ public class FormListener implements cn.nukkit.event.Listener {
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setBaseKB(ffaAreaKBInfo.getBaseKB() + Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setBaseKB(Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getBaseKB()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getBaseKB()));
                             break;
                     }
-                break;
+                    break;
                 case "xzkb-g":
                     switch(option){
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setXzkb_g(ffaAreaKBInfo.getXzkb_g() + Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setXzkb_g(Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getXzkb()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getXzkb()));
                             break;
                     }
-                break;
+                    break;
                 case "ykb-g":
                     switch(option){
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setYkb_g(ffaAreaKBInfo.getYkb_g() + Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setYkb_g(Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getYkb_g()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getYkb_g()));
                             break;
                     }
-                break;
+                    break;
                 case "xzkb":
                     switch(option){
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setXzkb(ffaAreaKBInfo.getXzkb() + Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setXzkb(Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getXzkb()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getXzkb()));
                             break;
                     }
-                break;
+                    break;
                 case "ykb":
                     switch(option){
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setYkb(ffaAreaKBInfo.getYkb() + Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setYkb(Double.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getYkb()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getYkb()));
                             break;
                     }
-                break;
+                    break;
                 case "ac":
                     switch(option){
                         case "add":
                             FFAArea.FFAAreaKBInfo ffaAreaKBInfo = PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo();
                             ffaAreaKBInfo.setYkb(ffaAreaKBInfo.getAc() + Integer.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "set":
                             PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().setAc(Integer.valueOf(input));
-                            event.getPlayer().sendMessage("success");
+                            e.getPlayer().sendMessage("success");
                             break;
                         case "get":
-                            event.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getAc()));
+                            e.getPlayer().sendMessage(String.valueOf(PluginMain.getInstance().getFfaAreas().get(ffaArea).getFfaAreaKBInfo().getAc()));
                             break;
                     }
-                break;
+                    break;
+                }
             }
+        );
+    }
+
+    public KBACCommand(String name) {
+        super(name);
+        this.setDescription("set FFAArea kbac");
+        this.setPermission("op");
+        this.setDescription("/kbac <FFAArea_name> <basekb/xzkb/ykb/xzkb-g/ykb-g> <add/set> <int/double>");
+    }
+
+    public static BFormWindowCustom getFormWindowCustom() {
+        return formWindowCustom;
+    }
+
+    @Override
+    public boolean execute(CommandSender commandSender, String s, String[] strings) {
+        if (commandSender instanceof ConsoleCommandSender){
+            commandSender.sendMessage("不能在控制台使用此指令");
+        }else if(!commandSender.isOp()) {
+            return true;
+        }else{
+            getFormWindowCustom().sendToPlayer((Player) commandSender);
+            return true;
         }
+        return true;
     }
 }

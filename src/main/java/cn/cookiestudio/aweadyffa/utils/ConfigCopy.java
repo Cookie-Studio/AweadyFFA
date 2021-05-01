@@ -1,6 +1,7 @@
-package top.smartcmd.aweadyffa.utils;
+package cn.cookiestudio.aweadyffa.utils;
 
-import top.smartcmd.aweadyffa.PluginMain;
+import cn.cookiestudio.aweadyffa.PluginMain;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
