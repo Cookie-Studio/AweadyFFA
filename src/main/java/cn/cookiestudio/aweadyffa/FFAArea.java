@@ -19,7 +19,6 @@ import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
 import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Position;
-import cn.nukkit.level.particle.Particle;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
 import cn.nukkit.network.protocol.SpawnParticleEffectPacket;
@@ -143,7 +142,7 @@ public class FFAArea {
         for (Item item : this.ffaItems)
             player.getInventory().addItem(item);
         try{
-            player.getInventory().setArmorContents((Item[]) this.ffaArmors.toArray(new Item[0]));
+            player.getInventory().setArmorContents(this.ffaArmors.toArray(new Item[0]));
         }catch(Throwable t){
             t.printStackTrace();
         }
@@ -157,11 +156,11 @@ public class FFAArea {
     }
 
     public void joinAndTp(Player player,boolean randomTp){
+        join(player);
         if (randomTp)
             player.teleport(getRandomTeleportPosition());
         else
             player.teleport(getTeleportPosition());
-        join(player);
     }
 
     public Position getTeleportPosition(){
@@ -172,7 +171,7 @@ public class FFAArea {
         Position position = getRandomPosition();
         while(!(position.getLevelBlock().getId() == 0 && position.add(0,1,0).getLevelBlock().getId() == 0))
             position = getRandomPosition();
-        return this.position3;
+        return position;
     }
 
     private Position getRandomPosition(){
@@ -248,7 +247,7 @@ public class FFAArea {
                 Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
                 return;
             }
-            if (PluginMain.getInstance().getPlayerSettings().getSettings().get((Player)event.getDamager()).isShowAttackParticle()){
+            if (PluginMain.getInstance().getPlayerSettings().getSettings().get(event.getDamager().getName()).isShowAttackParticle()){
                 Vector3f spawn = event.getEntity().getPosition().asVector3f();
                 SpawnParticleEffectPacket packet = new SpawnParticleEffectPacket();
                 packet.position = spawn;
@@ -313,11 +312,11 @@ public class FFAArea {
         @Override
         public void onRun(int i) {
             for (Player player : position1.level.getPlayers().values()){
-                if (!FFAArea.this.players.contains(player) && FFAArea.this.isInArea(player))
-                    FFAArea.this.join(player);
-                if (FFAArea.this.players.contains(player) && !FFAArea.this.isInArea(player)){
-                    FFAArea.this.exitFFAArea(player);
-                }
+//                if (!FFAArea.this.players.contains(player) && FFAArea.this.isInArea(player))
+//                    FFAArea.this.join(player);
+//                if (FFAArea.this.players.contains(player) && !FFAArea.this.isInArea(player)){
+//                    FFAArea.this.exit(player);
+//                }
                 if (FFAArea.this.isInArea(player))
                     player.getFoodData().setLevel(20);
             }
@@ -417,7 +416,7 @@ public class FFAArea {
                 && pos.getLevel() == position1.getLevel() ? true : false;
     }
 
-    private void exitFFAArea(Player player){
+    private void exit(Player player){
         this.players.remove(player);
         player.sendTitle(this.exitTitle,this.exitSubTitle);
         player.sendMessage(this.exitMessage);

@@ -46,7 +46,6 @@ public class FFACommand extends Command {
                 FElementButton button1 = (FElementButton) button;
                 button1.setText(button1.getFfaArea().getAreaName() + "\n" + "online: " + button1.getFfaArea().getPlayers().size());
             }
-
             getJoinFFAAreaForm().sendToPlayer((Player) commandSender);
         }
         return true;

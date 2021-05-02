@@ -1,6 +1,7 @@
 package cn.cookiestudio.aweadyffa.playersetting;
 
 import cn.cookiestudio.aweadyffa.PluginMain;
+import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
@@ -30,15 +31,13 @@ public class PlayerSettings {
             public void onPlayerJoin(PlayerJoinEvent event){
                 String name = event.getPlayer().getName();
                 if (!settings.containsKey(name)){
-                    if (!existInFile(name)){
-                        PlayerSettingEntry entry = PlayerSettingEntry.builder().build();
-                        settings.put(name,entry);
-                    }else{
-                        cache(name);
-                    }
+                    cache(name);
                 }
             }
         }, PluginMain.getInstance());
+        for (Player player : Server.getInstance().getOnlinePlayers().values()){//reload fixed
+            cache(player.getName());
+        }
     }
 
     public void init() throws Exception {
@@ -49,7 +48,16 @@ public class PlayerSettings {
     }
 
     public PlayerSettingEntry cache(String name){
+        return cache(name,true);
+    }
+
+    public PlayerSettingEntry cache(String name,boolean createIfMessing){
         String key = name;
+        if (!existInFile(name)){
+            PlayerSettingEntry entry = PlayerSettingEntry.builder().build();
+            settings.put(name,entry);
+            return entry;
+        }
         PlayerSettingEntry e = PlayerSettingEntry.builder()
                 .showAttackParticle(config.getBoolean(key + ".showAttackParticle"))
                 .randomTp(config.getBoolean(key + ".randomTp")).build();
