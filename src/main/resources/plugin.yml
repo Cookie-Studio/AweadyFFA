@@ -1,5 +1,5 @@
 name: AweadyFFA
-main: top.smartcmd.aweadyffa.PluginMain
+main: cn.cookiestudio.aweadyffa.PluginMain
 version: "1.0.8"
 author: smart_cmd
 api: ["1.0.11"]

@@ -25,7 +25,7 @@ public class PluginMain extends PluginBase {
     private static Gson GSON = new Gson();
     private Config ffaConfig;
     private HashMap<String, FFAArea> ffaAreas = new HashMap<>();
-    private PlayerSettings playerSettings = new PlayerSettings();
+    private PlayerSettings playerSettings;
 
     @Override
     public void onLoad() {
@@ -34,8 +34,8 @@ public class PluginMain extends PluginBase {
 
     @Override
     public void onEnable() {
-        this.getLogger().info("Plugin enable!");
         instance = this;
+        playerSettings = new PlayerSettings();
         Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(),"ffa.yml");
         if (!Files.exists(configPath)) {
             this.getDataFolder().mkdir();
@@ -43,7 +43,7 @@ public class PluginMain extends PluginBase {
         }
         this.ffaConfig = new Config(this.getDataFolder() + "/ffa.yml");
         this.initFFAArea();
-        this.registerCommand();
+        this.registerCommands();
 //        Server.getInstance().getScheduler().scheduleRepeatingTask(new PluginTask(this){
 //            @Override
 //            public void onRun(int i) {
@@ -56,6 +56,7 @@ public class PluginMain extends PluginBase {
 //                }
 //            }
 //        }, 1);
+        this.getLogger().info("Plugin enable!");
     }
 
     @Override
@@ -81,7 +82,7 @@ public class PluginMain extends PluginBase {
         }
     }
 
-    private void registerCommand() {
+    private void registerCommands() {
         Server.getInstance().getCommandMap().register("",new FFACommand("ffa"));
         Server.getInstance().getCommandMap().register("",new KBACCommand("kbac"));
         Server.getInstance().getCommandMap().register("",new GetWorldName("getwn"));

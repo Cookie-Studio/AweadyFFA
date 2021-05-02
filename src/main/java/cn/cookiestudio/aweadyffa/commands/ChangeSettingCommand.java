@@ -11,8 +11,10 @@ import cn.nukkit.form.element.ElementToggle;
 import cn.nukkit.form.response.FormResponseCustom;
 
 public class ChangeSettingCommand extends Command {
+
     public ChangeSettingCommand(String name) {
         super(name);
+        setDescription("change your ffa settings!");
     }
 
     @Override

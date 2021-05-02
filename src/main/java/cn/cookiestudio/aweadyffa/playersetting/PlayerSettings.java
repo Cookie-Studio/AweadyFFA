@@ -9,6 +9,7 @@ import cn.nukkit.utils.Config;
 import lombok.Getter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class PlayerSettings {
     }
 
     public void init() throws Exception {
-        Path p = PluginMain.getInstance().getDataFolder().toPath().resolve("playerSettings.json");
+        Path p = Paths.get(PluginMain.getInstance().getDataFolder().toString(),"playerSettings.json");
         if (!Files.exists(p))
             Files.createFile(p);
         this.config = new cn.nukkit.utils.Config(p.toFile(),Config.JSON);
