@@ -2,7 +2,6 @@ package cn.cookiestudio.aweadyffa.commands;
 
 import cn.cookiestudio.aweadyffa.FElementButton;
 import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingEntry;
-import cn.cookiestudio.aweadyffa.playersetting.PlayerSettings;
 import cn.cookiestudio.aweadyffa.PluginMain;
 import cn.cookiestudio.easy4form.window.BFormWindowSimple;
 import cn.nukkit.Player;
@@ -12,18 +11,23 @@ import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.form.element.ElementButton;
 import cn.nukkit.form.response.FormResponseSimple;
 
+import java.util.stream.Collectors;
+
 public class FFACommand extends Command {
 
-    private static BFormWindowSimple joinFFAAreaForm = new BFormWindowSimple("FFA","");
+    private static BFormWindowSimple joinFFAAreaForm;
 
     static {
-        joinFFAAreaForm.setResponseAction((e) -> {
-            if (e.getResponse() == null)
-                return;
-            FElementButton fElementButton = (FElementButton) ((FormResponseSimple)e.getResponse()).getClickedButton();
-            PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(e.getPlayer().getName());
-            fElementButton.getFfaArea().joinAndTp(e.getPlayer(), entry.isRandomTp());
-        });
+        joinFFAAreaForm = BFormWindowSimple.getBuilder().setButtons(PluginMain.getInstance().getFfaAreas().values()
+                .stream()
+                .map((a) -> new FElementButton(a.getAreaName(),a))
+                .collect(Collectors.toList()))
+                .setResponseAction((e) -> {
+                    FElementButton fElementButton = (FElementButton) ((FormResponseSimple)e.getResponse()).getClickedButton();
+                    PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(e.getPlayer().getName());
+                    fElementButton.getFfaArea().joinAndTp(e.getPlayer(), entry.isRandomTp());})
+                .setTitle("FFA")
+                .build();
     }
 
     public FFACommand(String name) {
@@ -46,6 +50,8 @@ public class FFACommand extends Command {
                 FElementButton button1 = (FElementButton) button;
                 button1.setText(button1.getFfaArea().getAreaName() + "\n" + "online: " + button1.getFfaArea().getPlayers().size());
             }
+//            if (PluginMain.getInstance().isPositionInFFAArea((Player)commandSender))
+//                PluginMain.getInstance().getPositionFFAArea((Player)commandSender).exit((Player)commandSender);
             getJoinFFAAreaForm().sendToPlayer((Player) commandSender);
         }
         return true;

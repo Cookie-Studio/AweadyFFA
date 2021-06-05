@@ -53,3 +53,4 @@
 #    time: 2 #(单位:s)
 #  money-give-count-when-kill: 1
 #  money-remove-count-when-dead: 1
+#  spawn: [100,100,100,world]

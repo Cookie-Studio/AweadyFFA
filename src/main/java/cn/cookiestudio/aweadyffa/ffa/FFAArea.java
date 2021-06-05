@@ -1,5 +1,8 @@
-package cn.cookiestudio.aweadyffa;
+package cn.cookiestudio.aweadyffa.ffa;
 
+import cn.cookiestudio.aweadyffa.PluginMain;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingEntry;
+import cn.cookiestudio.aweadyffa.utils.PlayerHealthUtil;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
 import cn.nukkit.entity.Attribute;
@@ -13,11 +16,8 @@ import cn.nukkit.event.block.BlockPlaceEvent;
 import cn.nukkit.event.entity.EntityDamageByEntityEvent;
 import cn.nukkit.event.entity.EntityDamageEvent;
 import cn.nukkit.event.entity.EntityMotionEvent;
-import cn.nukkit.event.player.PlayerDeathEvent;
-import cn.nukkit.event.player.PlayerQuitEvent;
 import cn.nukkit.item.Item;
 import cn.nukkit.item.enchantment.Enchantment;
-import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.level.Position;
 import cn.nukkit.math.Vector3;
 import cn.nukkit.math.Vector3f;
@@ -38,9 +38,10 @@ import java.util.Random;
 public class FFAArea {
     private ArrayList<Item> ffaItems = new ArrayList<>();
     private ArrayList<Item> ffaArmors = new ArrayList<>();
-    private Position position1;
-    private Position position2;
-    private Position position3;
+    private Position cornerPosition1;
+    private Position cornerPosition2;
+    private Position middlePosition;
+    private Position spawnPosition;
     private boolean allowAttackDamage;
     private boolean bloodBackWhenKill;
     private boolean allowBreakBlock;
@@ -73,9 +74,11 @@ public class FFAArea {
         this.areaName = name;
         Config config = PluginMain.getInstance().getFfaConfig();
         ArrayList posInfo = (ArrayList) config.get(name + ".position");
-        position1 = new Position((int) posInfo.get(0),(int)posInfo.get(1),(int)posInfo.get(2), Server.getInstance().getLevelByName((String)posInfo.get(9)));
-        position2 = new Position((int)posInfo.get(3),(int)posInfo.get(4),(int)posInfo.get(5), Server.getInstance().getLevelByName((String)posInfo.get(9)));
-        position3 = new Position((int)posInfo.get(6),(int)posInfo.get(7),(int)posInfo.get(8), Server.getInstance().getLevelByName((String)posInfo.get(9)));
+        cornerPosition1 = new Position((int) posInfo.get(0),(int)posInfo.get(1),(int)posInfo.get(2), Server.getInstance().getLevelByName((String)posInfo.get(9)));
+        cornerPosition2 = new Position((int)posInfo.get(3),(int)posInfo.get(4),(int)posInfo.get(5), Server.getInstance().getLevelByName((String)posInfo.get(9)));
+        middlePosition = new Position((int)posInfo.get(6),(int)posInfo.get(7),(int)posInfo.get(8), Server.getInstance().getLevelByName((String)posInfo.get(9)));
+        ArrayList spawn = (ArrayList) config.get(name + ".spawn");
+        spawnPosition = new Position((int)spawn.get(0),(int)spawn.get(1),(int)spawn.get(2),Server.getInstance().getLevelByName((String)spawn.get(3)));
         this.allowAttackDamage = (boolean) config.get(name +".allow-attack-damage");
         this.joinTitle = (String) config.get(name +".join-title");
         this.joinSubTitle = (String) config.get(name +".join-subtitle");
@@ -156,15 +159,17 @@ public class FFAArea {
     }
 
     public void joinAndTp(Player player,boolean randomTp){
+        AreaExistWhiteList.add(player);
         join(player);
         if (randomTp)
             player.teleport(getRandomTeleportPosition());
         else
             player.teleport(getTeleportPosition());
+        AreaExistWhiteList.remove(player);
     }
 
     public Position getTeleportPosition(){
-        return this.position3;
+        return this.middlePosition;
     }
 
     public Position getRandomTeleportPosition(){
@@ -176,9 +181,9 @@ public class FFAArea {
 
     private Position getRandomPosition(){
         Random r = new Random();
-        double x = r.nextInt((int) (position2.x - position1.x)) + 1 + position1.x;
-        double z = r.nextInt((int) (position2.z - position1.z)) + 1 + position1.z;
-        return new Position(x,position3.y,z, position3.level);
+        double x = r.nextInt((int) (cornerPosition2.x - cornerPosition1.x)) + 1 + cornerPosition1.x;
+        double z = r.nextInt((int) (cornerPosition2.z - cornerPosition1.z)) + 1 + cornerPosition1.z;
+        return new Position(x, middlePosition.y,z, middlePosition.level);
     }
 
     public FFAAreaKBInfo getFfaAreaKBInfo() {
@@ -192,21 +197,20 @@ public class FFAArea {
         public void onDamage(EntityDamageByEntityEvent event){
             if (!(event.getDamager() instanceof Player
                     && event.getEntity() instanceof Player
-                    && FFAArea.this.players.contains(event.getEntity())
-                    && FFAArea.this.players.contains(event.getDamager())))
+                    && players.contains(event.getEntity())
+                    && players.contains(event.getDamager())))
                 return;
-            FFAAreaKBInfo ffaAreaKBInfo = FFAArea.this.getFfaAreaKBInfo();
+            FFAAreaKBInfo ffaAreaKBInfo = getFfaAreaKBInfo();
             event.setAttackCooldown(ffaAreaKBInfo.getAc());
             event.setKnockBack(Float.parseFloat(String.valueOf(ffaAreaKBInfo.getBaseKB())));
-            if (!FFAArea.this.allowAttackDamage) {
-                event.getEntity().setHealth(event.getEntity().getMaxHealth());
+            Player entity = (Player) event.getEntity();
+            Player damager = (Player) event.getDamager();
+            if (!allowAttackDamage) {
+                entity.setHealth(entity.getMaxHealth());
                 return;
             }
-            if (event.getEntity().getHealth() - event.getFinalDamage() < 1){
+            if (entity.getHealth() - event.getFinalDamage() < 1){
                 event.setCancelled();
-
-                Player damager = (Player) event.getDamager();
-                Player entity = (Player)event.getEntity();
 
                 entity.setHealth(entity.getMaxHealth());
 
@@ -215,23 +219,26 @@ public class FFAArea {
                 lightning.setEffect(false);
                 lightning.spawnToAll();
 
-                cn.cookiestudio.lobbysystem.PluginMain.getInstance().getLobby().teleportPlayerToLobby(entity);
+                AreaExistWhiteList.add(entity);
+                entity.teleport(spawnPosition);
+                exit(entity);
+                AreaExistWhiteList.remove(entity);
 
-                damager.sendTitle(FFAArea.this.killTitle,FFAArea.this.killSubTitle);
-                damager.sendMessage(FFAArea.this.killMessage);
-                damager.sendActionBar(FFAArea.this.killActionbar);
+                damager.sendTitle(killTitle,killSubTitle);
+                damager.sendMessage(killMessage);
+                damager.sendActionBar(killActionbar);
 
-                if (FFAArea.this.bloodBackWhenKill)
+                if (bloodBackWhenKill)
                     damager.setHealth(damager.getMaxHealth());
-                if (FFAArea.this.killBroadCast)
-                    for (Player player : FFAArea.this.players)
-                        player.sendMessage(FFAArea.this.killBroadCastText.replaceAll("\\{Damager\\}",damager.getName()).replaceAll("\\{Dead\\}",entity.getName()));
-                if (FFAArea.this.resetEquipmentWhenKill){
+                if (killBroadCast)
+                    for (Player player : players)
+                        player.sendMessage(killBroadCastText.replaceAll("\\{Damager\\}",damager.getName()).replaceAll("\\{Dead\\}",entity.getName()));
+                if (resetEquipmentWhenKill){
                     damager.getInventory().clearAll();
-                    for (Item item : FFAArea.this.ffaItems)
+                    for (Item item : ffaItems)
                         damager.getInventory().addItem(item);
                     try{
-                        damager.getInventory().setArmorContents(FFAArea.this.ffaArmors.toArray(new Item[0]));
+                        damager.getInventory().setArmorContents(ffaArmors.toArray(new Item[0]));
                     }catch(Throwable t){
                         t.printStackTrace();
                     }
@@ -241,30 +248,36 @@ public class FFAArea {
                 EconomyAPI.getInstance().addMoney(damager,moneyGiveCountWhenKill);
                 EconomyAPI.getInstance().reduceMoney(entity,moneyRemoveCountWhenKill);
 
-//                entity.teleport(FFAArea.this.getTeleportPosition());
-//                FFAArea.this.joinFFAArea(entity);
+//                entity.teleport(getTeleportPosition());
+//                joinFFAArea(entity);
 
-                Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
+//                Server.getInstance().getPluginManager().callEvent(new PlayerDeathEvent(entity, new Item[0], entity.getName() + " dead",0));
                 return;
             }
-            if (PluginMain.getInstance().getPlayerSettings().getSettings().get(event.getDamager().getName()).isShowAttackParticle()){
+
+            PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(damager.getName());
+            if (entry.isShowAttackParticle()){
                 Vector3f spawn = event.getEntity().getPosition().asVector3f();
+                spawn.add(0,1F,0);
                 SpawnParticleEffectPacket packet = new SpawnParticleEffectPacket();
                 packet.position = spawn;
-                packet.identifier = ParticleEffect.CRITICAL_HIT.getIdentifier();
-                ((Player)event.getDamager()).dataPacket(packet);
+                packet.identifier = entry.getParticleType();
+                (damager).dataPacket(packet);
             }
+
+            if (entry.isShowEnemyHealthInActionbar())
+                damager.sendActionBar(PlayerHealthUtil.changeToString(entity.getHealth(),entity.getMaxHealth()));
         }
 
         @EventHandler
         public void onFFAAreaBlockBreak(BlockBreakEvent event){
-            if (isInArea(event.getBlock().getLocation()) && event.getPlayer().getGamemode() != 1 && !FFAArea.this.allowBreakBlock)
+            if (isInArea(event.getBlock().getLocation()) && event.getPlayer().getGamemode() != 1 && !allowBreakBlock)
                 event.setCancelled();
         }
 
         @EventHandler
         public void onFFAAreaBlockPlace(BlockPlaceEvent event){
-            if (isInArea(event.getBlock().getLocation()) && event.getPlayer().getGamemode() != 1 && !FFAArea.this.allowPlaceBlock)
+            if (isInArea(event.getBlock().getLocation()) && event.getPlayer().getGamemode() != 1 && !allowPlaceBlock)
                 event.setCancelled();
         }
 
@@ -273,10 +286,10 @@ public class FFAArea {
         )
         public void onMotion(EntityMotionEvent event) {
             Vector3 v;
-            if (!FFAArea.this.isInArea(event.getEntity()))
+            if (!isInArea(event.getEntity()))
                 return;
             if (event.getEntity().isOnGround()) {
-                FFAAreaKBInfo ffaAreaKBInfo = FFAArea.this.getFfaAreaKBInfo();
+                FFAAreaKBInfo ffaAreaKBInfo = getFfaAreaKBInfo();
                 v = event.getMotion();
                 v.x *= ffaAreaKBInfo.getXzkb_g();
                 v = event.getMotion();
@@ -293,12 +306,12 @@ public class FFAArea {
             }
         }
 
-        @EventHandler
-        public void onPlayerQuit(PlayerQuitEvent event){
-            if (FFAArea.this.players.contains(event.getPlayer())){
-                FFAArea.this.players.remove(event.getPlayer());
-            }
-        }
+//        @EventHandler
+//        public void onPlayerQuit(PlayerQuitEvent event){
+//            if (players.contains(event.getPlayer())){
+//                exit(event.getPlayer());
+//            }
+//        }
     }
 
     private class FFAAreaTask extends PluginTask{
@@ -311,27 +324,43 @@ public class FFAArea {
 
         @Override
         public void onRun(int i) {
-            for (Player player : position1.level.getPlayers().values()){
-//                if (!FFAArea.this.players.contains(player) && FFAArea.this.isInArea(player))
-//                    FFAArea.this.join(player);
-//                if (FFAArea.this.players.contains(player) && !FFAArea.this.isInArea(player)){
-//                    FFAArea.this.exit(player);
-//                }
-                if (FFAArea.this.isInArea(player))
+            for (Player player : cornerPosition1.level.getPlayers().values()){
+                if (!players.contains(player) && isInArea(player) && !AreaExistWhiteList.exist(player))
+                    join(player);
+                if (((players.contains(player) && !isInArea(player)) || !player.isOnline()) && !AreaExistWhiteList.exist(player))
+                    exit(player);
+                if (isInArea(player))
                     player.getFoodData().setLevel(20);
             }
-            if (runTick / FFAArea.this.clearItemsTime == 1){
-                for (Entity entity : FFAArea.this.position3.getLevel().getEntities())
-                    if (entity instanceof EntityItem && FFAArea.this.isInArea(entity.getPosition()))
-                        FFAArea.this.position3.getLevel().removeEntity(entity);
+            if (runTick / clearItemsTime == 1){
+                for (Entity entity : middlePosition.getLevel().getEntities())
+                    if (entity instanceof EntityItem && isInArea(entity.getPosition()))
+                        middlePosition.getLevel().removeEntity(entity);
                 runTick = 0;
             }else
                 runTick++;
-//            for (Player player2 : FFAArea.this.players){
+//            for (Player player2 : players){
 //                if (player2.getName().equals("daoge cmd")){
-//                    FFAArea.this.position1.level.addParticleEffect(player2.getPosition(), ParticleEffect.SOUL);
+//                    position1.level.addParticleEffect(player2.getPosition(), ParticleEffect.SOUL);
 //                }
 //            }
+        }
+    }
+
+    @Getter
+    public static class AreaExistWhiteList {
+        private static HashSet<Player> whiteList = new HashSet<>();
+
+        public static boolean exist(Player player){
+            return whiteList.contains(player);
+        }
+
+        public static void remove(Player player){
+            whiteList.remove(player);
+        }
+
+        public static void add(Player player){
+            whiteList.add(player);
         }
     }
 
@@ -406,17 +435,17 @@ public class FFAArea {
     }
 
     public boolean isInArea(Position pos){
-        return pos.level.getName().equals(this.position1.level.getName())
-                && pos.x >= position1.x
-                && pos.y >= position1.y
-                && pos.z >= position1.z
-                && pos.x <= position2.x
-                && pos.y <= position2.y
-                && pos.z <= position2.z
-                && pos.getLevel() == position1.getLevel() ? true : false;
+        return pos.level.getName().equals(this.cornerPosition1.level.getName())
+                && pos.x >= cornerPosition1.x
+                && pos.y >= cornerPosition1.y
+                && pos.z >= cornerPosition1.z
+                && pos.x <= cornerPosition2.x
+                && pos.y <= cornerPosition2.y
+                && pos.z <= cornerPosition2.z
+                && pos.getLevel() == cornerPosition1.getLevel() ? true : false;
     }
 
-    private void exit(Player player){
+    public void exit(Player player){
         this.players.remove(player);
         player.sendTitle(this.exitTitle,this.exitSubTitle);
         player.sendMessage(this.exitMessage);

@@ -6,6 +6,7 @@ import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
+import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.utils.Config;
 import lombok.Getter;
 import java.nio.file.Files;
@@ -60,7 +61,9 @@ public class PlayerSettings {
         }
         PlayerSettingEntry e = PlayerSettingEntry.builder()
                 .showAttackParticle(config.getBoolean(key + ".showAttackParticle"))
-                .randomTp(config.getBoolean(key + ".randomTp")).build();
+                .randomTp(config.getBoolean(key + ".randomTp"))
+                .particleType(config.getString(key + ".particleType"))
+                .build();
         settings.put(name,e);
         return e;
     }
