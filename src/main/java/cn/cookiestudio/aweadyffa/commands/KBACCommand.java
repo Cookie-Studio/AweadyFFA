@@ -8,7 +8,7 @@ import cn.nukkit.command.ConsoleCommandSender;
 import cn.nukkit.form.element.ElementDropdown;
 import cn.nukkit.form.element.ElementInput;
 import cn.nukkit.form.response.FormResponseCustom;
-import cn.cookiestudio.aweadyffa.FFAArea;
+import cn.cookiestudio.aweadyffa.ffa.FFAArea;
 import cn.cookiestudio.aweadyffa.PluginMain;
 
 import java.util.ArrayList;

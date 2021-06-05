@@ -1,5 +1,6 @@
 package cn.cookiestudio.aweadyffa;
 
+import cn.cookiestudio.aweadyffa.ffa.FFAArea;
 import cn.nukkit.form.element.ElementButton;
 
 public class FElementButton extends ElementButton {

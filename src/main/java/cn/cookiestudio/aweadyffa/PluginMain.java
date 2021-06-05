@@ -3,6 +3,7 @@ package cn.cookiestudio.aweadyffa;
 import cn.cookiestudio.aweadyffa.commands.ChangeSettingCommand;
 import cn.cookiestudio.aweadyffa.commands.GetWorldName;
 import cn.cookiestudio.aweadyffa.commands.KBACCommand;
+import cn.cookiestudio.aweadyffa.ffa.FFAArea;
 import cn.cookiestudio.aweadyffa.playersetting.PlayerSettings;
 import cn.cookiestudio.aweadyffa.utils.ConfigCopy;
 import cn.nukkit.Server;
@@ -74,11 +75,18 @@ public class PluginMain extends PluginBase {
         return tmp;
     }
 
+    public FFAArea getPositionFFAArea(Position position){
+        for (FFAArea ffaArea : this.ffaAreas.values()){
+            if (ffaArea.isInArea(position))
+                return ffaArea;
+        }
+        return null;
+    }
+
     private void initFFAArea(){
         for(String name : ffaConfig.getKeys(false)) {
             FFAArea ffaArea = new FFAArea(name);
             this.ffaAreas.put(name,ffaArea);
-            FFACommand.getJoinFFAAreaForm().addButton(new FElementButton(name,ffaArea));
         }
     }
 
