@@ -5,4 +5,4 @@ author: smart_cmd
 api: ["1.0.11"]
 depend:
   - Easy4Form
-  - EconmyAPI
+  - EconomyAPI
