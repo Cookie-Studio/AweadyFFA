@@ -38,6 +38,7 @@ import java.util.Random;
 public class FFAArea {
     private ArrayList<Item> ffaItems = new ArrayList<>();
     private ArrayList<Item> ffaArmors = new ArrayList<>();
+    private HashSet<Player> players = new HashSet<>();
     private Position cornerPosition1;
     private Position cornerPosition2;
     private Position middlePosition;
@@ -46,11 +47,8 @@ public class FFAArea {
     private boolean bloodBackWhenKill;
     private boolean allowBreakBlock;
     private boolean allowPlaceBlock;
-    private boolean killBroadCast;
-    private boolean clearItems;
     private boolean resetEquipmentWhenKill;
     private String areaName;
-    private HashSet<Player> players = new HashSet<>();
     private String joinTitle;
     private String joinSubTitle;
     private String joinMessage;
@@ -63,7 +61,7 @@ public class FFAArea {
     private String killSubTitle;
     private String killMessage;
     private String killActionbar;
-    private String killBroadCastText;
+    private String killBroadCast;
     private FFAAreaKBInfo ffaAreaKBInfo = new FFAAreaKBInfo();
     private int playerMaxHealth;
     private int clearItemsTime;
@@ -103,10 +101,9 @@ public class FFAArea {
         this.allowBreakBlock = (boolean) config.get(name + ".allow-break-block");
         this.allowPlaceBlock = (boolean) config.get(name + ".allow-place-block");
         this.playerMaxHealth = (int) config.get(name + ".player-max-health");
-        this.killBroadCast = (boolean) config.get(name + ".kill-broad-cast.open");
-        this.killBroadCastText = (String) config.get(name + ".kill-broad-cast.text");
-        this.clearItems = (boolean) config.get(name + ".clear-items.open");
-        this.clearItemsTime = (int) config.get(name + ".clear-items.time") * 4;
+        this.killBroadCast = (String) config.get(name + ".kill-broad-cast");
+        this.clearItemsTime = (int) config.get(name + ".clear-items-time") * 4;
+        if (this.clearItemsTime == 0) this.clearItemsTime = 1;
         this.moneyGiveCountWhenKill = (int) config.get(name + ".money-give-count-when-kill");
         this.moneyRemoveCountWhenKill = (int) config.get(name + ".money-remove-count-when-dead");
 
@@ -230,9 +227,9 @@ public class FFAArea {
 
                 if (bloodBackWhenKill)
                     damager.setHealth(damager.getMaxHealth());
-                if (killBroadCast)
+                if (!killBroadCast.isEmpty())
                     for (Player player : players)
-                        player.sendMessage(killBroadCastText.replaceAll("\\{Damager\\}",damager.getName()).replaceAll("\\{Dead\\}",entity.getName()));
+                        player.sendMessage(killBroadCast.replaceAll("\\{Damager\\}",damager.getName()).replaceAll("\\{Dead\\}",entity.getName()));
                 if (resetEquipmentWhenKill){
                     damager.getInventory().clearAll();
                     for (Item item : ffaItems)
@@ -332,13 +329,16 @@ public class FFAArea {
                 if (isInArea(player))
                     player.getFoodData().setLevel(20);
             }
-            if (runTick / clearItemsTime == 1){
-                for (Entity entity : middlePosition.getLevel().getEntities())
-                    if (entity instanceof EntityItem && isInArea(entity.getPosition()))
-                        middlePosition.getLevel().removeEntity(entity);
-                runTick = 0;
-            }else
-                runTick++;
+            if (clearItemsTime > 0) {
+                if (runTick / clearItemsTime == 1) {
+                    for (Entity entity : middlePosition.getLevel().getEntities())
+                        if (entity instanceof EntityItem && isInArea(entity.getPosition()))
+                            middlePosition.getLevel().removeEntity(entity);
+                    runTick = 0;
+                } else {
+                    runTick++;
+                }
+            }
 //            for (Player player2 : players){
 //                if (player2.getName().equals("daoge cmd")){
 //                    position1.level.addParticleEffect(player2.getPosition(), ParticleEffect.SOUL);

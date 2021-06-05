@@ -1,16 +1,16 @@
-#example
-#test:
-#  position: [100,0,150,200,255,250,150,100,100,200,world]
-#  equipment:
-#    - id: 1
-#      meta: 0
-#      name: test
-#      lore: lore
-#      enchantment:
-#        - id: 1
-#          level: 1
-#      count: 64
-#  armor: #没有盔甲就全部id写0
+#以下所有属性的介绍
+#test: #test为一个FFA区域的名称，以下为它的属性 可以写多个FFA区域的配置，只要名称不重复就行
+#  position: [100,0,150,200,255,250,150,100,100,200,world] 1 - 3数字表示的是区域坐标最小点，4 - 6数字表示的是区域坐标最大点，7 - 9数字表示的是玩家传送点，最后一个字符串是指定哪个世界
+#  equipment: #装备
+#    - id: 1 #物品id
+#      meta: 0 #物品特殊值
+#      name: test #物品名称
+#      lore: lore #物品lore
+#      enchantment: #物品附魔
+#        - id: 1 #附魔id
+#          level: 1 #附魔级别
+#      count: 64 #物品数量
+#  armor: #没有盔甲就全部id写0！
 #    - id: xxx #头
 #      enchantment:
 #        - id: 1
@@ -21,36 +21,32 @@
 #      enchantment: null
 #    - id: xxx #腿
 #      enchantment: null
-#  allow-attack-damage: true
-#  allow-break-block: false
-#  allow-place-block: false
-#  blood-back-when-kill: true
-#  reset-equipment-when-kill: true
-#  join-title: testjoin
-#  join-subtitle: testjoin
-#  join-message: testjoin
-#  join-actionbar: testjoin
-#  exit-title: testexit
-#  exit-subtitle: testexit
-#  exit-message: testexit
-#  exit-actionbar: testexitac: 10
-#  kill-title: killtest
-#  kill-subtitle: killtest
-#  kill-message: killtest
-#  kill-actionbar: killtest
-#  ac: 5
-#  basekb: 0.4 #这个别改
-#  xzkb-g: 0.33
-#  ykb-g: 0.65
-#  xzkb: 0.33
-#  ykb: 0.65
-#  player-max-health: 20
-#  kill-broad-cast:
-#    open: true
-#    text: Player {Damager} killed {Dead}!
-#  clear-items:
-#    open: true
-#    time: 2 #(单位:s)
-#  money-give-count-when-kill: 1
-#  money-remove-count-when-dead: 1
-#  spawn: [100,100,100,world]
+#  allow-attack-damage: true #区域内允许伤害
+#  allow-break-block: false #区域内允许方块破坏
+#  allow-place-block: false #区域内允许方块放置
+#  blood-back-when-kill: true #杀人时回血
+#  reset-equipment-when-kill: true #杀人时回复装备
+#  join-title: testjoin #加入区域时发送给玩家的title
+#  join-subtitle: testjoin #加入区域时发送给玩家的subtitle
+#  join-message: testjoin #加入区域时发送给玩家的message
+#  join-actionbar: testjoin #加入区域时发送给玩家的actionbar
+#  exit-title: testexit #~
+#  exit-subtitle: testexit #~
+#  exit-message: testexit #~
+#  exit-actionbar: testexit #~
+#  kill-title: killtest #~
+#  kill-subtitle: killtest #~
+#  kill-message: killtest #~
+#  kill-actionbar: killtest #~
+#  ac: 5 #此区域攻击冷却 单位:tick
+#  basekb: 0.4 #此区域基础击退因子
+#  xzkb-g: 0.33 #此区域xz轴地面击退因子
+#  ykb-g: 0.65 #此区域y轴地面击退因子
+#  xzkb: 0.33 #此区域xz轴击退因子
+#  ykb: 0.65 #此区域y轴击退因子
+#  player-max-health: 20 #区域内玩家最大血量
+#  kill-broad-cast: Player {Damager} killed {Dead}! #空字符串即为关闭 {Damager}为击杀者名称 {Dead}为死亡者名称
+#  clear-items-time: 2 # 清理场地掉落物周期时间 单位:s 设置为-1即为关闭
+#  money-give-count-when-kill: 1 #杀人时的奖励(econmyapi)
+#  money-remove-count-when-dead: 1 #死亡时的损失(econmyapi)
+#  spawn: [100,100,100,world] #死亡后出生点

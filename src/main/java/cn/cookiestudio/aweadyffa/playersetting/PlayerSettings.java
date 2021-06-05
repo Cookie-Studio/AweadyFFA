@@ -6,7 +6,6 @@ import cn.nukkit.Server;
 import cn.nukkit.event.EventHandler;
 import cn.nukkit.event.Listener;
 import cn.nukkit.event.player.PlayerJoinEvent;
-import cn.nukkit.level.ParticleEffect;
 import cn.nukkit.utils.Config;
 import lombok.Getter;
 import java.nio.file.Files;
