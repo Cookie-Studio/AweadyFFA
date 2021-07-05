@@ -451,10 +451,8 @@ public class FFAArea {
         player.sendMessage(this.exitMessage);
         player.sendActionBar(this.exitActionbar);
         player.setGamemode(2);
-        if (!PluginMain.getInstance().isPositionInFFAArea(player) && !cn.cookiestudio.lobbysystem.PluginMain.getInstance().getLobby().isPositionInLobby(player)){
-            player.removeAllEffects();
-            player.getInventory().clearAll();
-        }
+        player.removeAllEffects();
+        player.getInventory().clearAll();
         player.setMaxHealth(20);
         player.setHealth(20);
     }
