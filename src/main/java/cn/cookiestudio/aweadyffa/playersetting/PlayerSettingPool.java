@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Getter
-public class PlayerSettings {
+public class PlayerSettingPool {
 
     private Config config;
-    private Map<String,PlayerSettingEntry> settings = new HashMap<>();
+    private Map<String, PlayerSettingMap> settings = new HashMap<>();
 
-    public PlayerSettings(){
+    public PlayerSettingPool(){
         try {
             init();
         } catch (Exception e) {
@@ -47,18 +47,18 @@ public class PlayerSettings {
         this.config = new cn.nukkit.utils.Config(p.toFile(),Config.JSON);
     }
 
-    public PlayerSettingEntry cache(String name){
+    public PlayerSettingMap cache(String name){
         return cache(name,true);
     }
 
-    public PlayerSettingEntry cache(String name,boolean createIfMessing){
+    public PlayerSettingMap cache(String name, boolean createIfMessing){
         String key = name;
         if (!existInFile(name)){
-            PlayerSettingEntry entry = PlayerSettingEntry.builder().build();
+            PlayerSettingMap entry = PlayerSettingMap.builder().build();
             settings.put(name,entry);
             return entry;
         }
-        PlayerSettingEntry e = PlayerSettingEntry.builder()
+        PlayerSettingMap e = PlayerSettingMap.builder()
                 .showAttackParticle(config.getBoolean(key + ".showAttackParticle"))
                 .randomTp(config.getBoolean(key + ".randomTp"))
                 .particleType(config.getString(key + ".particleType"))
@@ -67,13 +67,13 @@ public class PlayerSettings {
         return e;
     }
 
-    public void write(String name,PlayerSettingEntry entry){
+    public void write(String name, PlayerSettingMap entry){
         config.set(name,PluginMain.getInstance().getGSON().toJson(entry));
         config.save();
     }
 
     public void writeAll(){
-        for (Map.Entry<String,PlayerSettingEntry> e : getSettings().entrySet())
+        for (Map.Entry<String, PlayerSettingMap> e : getSettings().entrySet())
             write(e.getKey(),e.getValue());
     }
 

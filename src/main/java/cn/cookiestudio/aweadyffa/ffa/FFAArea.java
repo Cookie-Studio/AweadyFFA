@@ -1,7 +1,7 @@
 package cn.cookiestudio.aweadyffa.ffa;
 
 import cn.cookiestudio.aweadyffa.PluginMain;
-import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingEntry;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingMap;
 import cn.cookiestudio.aweadyffa.utils.PlayerHealthUtil;
 import cn.nukkit.Player;
 import cn.nukkit.Server;
@@ -252,7 +252,7 @@ public class FFAArea {
                 return;
             }
 
-            PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(damager.getName());
+            PlayerSettingMap entry = PluginMain.getInstance().getPlayerSettingPool().getSettings().get(damager.getName());
             if (entry.isShowAttackParticle()){
                 Vector3f spawn = event.getEntity().getPosition().asVector3f();
                 spawn.add(0,1F,0);

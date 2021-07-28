@@ -30,10 +30,6 @@
 
     <repositories>
         <repository>
-            <id>ck</id>
-            <url>http://nz.ipyvps.com:1111/repository/cookie-studio/</url>
-        </repository>
-        <repository>
             <id>opencollab-repo-release</id>
             <url>https://repo.opencollab.dev/maven-releases/</url>
             <releases>
@@ -52,6 +48,10 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>ck</id>
+            <url>http://nz.ipyvps.com:1111/repository/cookie-studio/</url>
         </repository>
     </repositories>
 

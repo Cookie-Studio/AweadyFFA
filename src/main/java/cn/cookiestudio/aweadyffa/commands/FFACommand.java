@@ -1,7 +1,7 @@
 package cn.cookiestudio.aweadyffa.commands;
 
 import cn.cookiestudio.aweadyffa.FElementButton;
-import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingEntry;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingMap;
 import cn.cookiestudio.aweadyffa.PluginMain;
 import cn.cookiestudio.easy4form.window.BFormWindowSimple;
 import cn.nukkit.Player;
@@ -24,7 +24,7 @@ public class FFACommand extends Command {
                 .collect(Collectors.toList()))
                 .setResponseAction((e) -> {
                     FElementButton fElementButton = (FElementButton) ((FormResponseSimple)e.getResponse()).getClickedButton();
-                    PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(e.getPlayer().getName());
+                    PlayerSettingMap entry = PluginMain.getInstance().getPlayerSettingPool().getSettings().get(e.getPlayer().getName());
                     fElementButton.getFfaArea().joinAndTp(e.getPlayer(), entry.isRandomTp());})
                 .setTitle("FFA")
                 .build();

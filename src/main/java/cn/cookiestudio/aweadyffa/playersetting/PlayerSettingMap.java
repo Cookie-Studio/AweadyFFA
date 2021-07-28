@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class PlayerSettingEntry{
+public class PlayerSettingMap {
     boolean showAttackParticle;
     boolean randomTp;
     boolean showEnemyHealthInActionbar;

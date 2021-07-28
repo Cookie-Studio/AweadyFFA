@@ -1,6 +1,6 @@
 package cn.cookiestudio.aweadyffa.commands;
 
-import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingEntry;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingMap;
 import cn.cookiestudio.aweadyffa.PluginMain;
 import cn.cookiestudio.easy4form.window.BFormWindowCustom;
 import cn.nukkit.Player;
@@ -29,7 +29,7 @@ public class ChangeSettingCommand extends Command {
         }else{
             Player player = (Player)sender;
             BFormWindowCustom custom = new BFormWindowCustom("Settings");
-            PlayerSettingEntry entry = PluginMain.getInstance().getPlayerSettings().getSettings().get(player.getName());
+            PlayerSettingMap entry = PluginMain.getInstance().getPlayerSettingPool().getSettings().get(player.getName());
             custom.addElement(new ElementToggle("randomTp",entry.isRandomTp()));
             custom.addElement(new ElementToggle("showAttackParticle",entry.isShowAttackParticle()));
             custom.addElement(new ElementToggle("showEnemyHealthInActionbar",entry.isShowEnemyHealthInActionbar()));

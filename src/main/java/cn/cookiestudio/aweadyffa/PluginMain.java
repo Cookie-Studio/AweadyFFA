@@ -4,8 +4,7 @@ import cn.cookiestudio.aweadyffa.commands.ChangeSettingCommand;
 import cn.cookiestudio.aweadyffa.commands.GetWorldName;
 import cn.cookiestudio.aweadyffa.commands.KBACCommand;
 import cn.cookiestudio.aweadyffa.ffa.FFAArea;
-import cn.cookiestudio.aweadyffa.playersetting.PlayerSettings;
-import cn.cookiestudio.aweadyffa.utils.ConfigCopy;
+import cn.cookiestudio.aweadyffa.playersetting.PlayerSettingPool;
 import cn.nukkit.Server;
 import cn.nukkit.level.Position;
 import cn.nukkit.plugin.PluginBase;
@@ -26,7 +25,7 @@ public class PluginMain extends PluginBase {
     private static Gson GSON = new Gson();
     private Config ffaConfig;
     private HashMap<String, FFAArea> ffaAreas = new HashMap<>();
-    private PlayerSettings playerSettings;
+    private PlayerSettingPool playerSettingPool;
 
     @Override
     public void onLoad() {
@@ -36,13 +35,10 @@ public class PluginMain extends PluginBase {
     @Override
     public void onEnable() {
         instance = this;
-        playerSettings = new PlayerSettings();
         Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(),"ffa.yml");
-        if (!Files.exists(configPath)) {
-            this.getDataFolder().mkdir();
-            ConfigCopy.copy("ffa.yml");
-        }
+        this.saveResource("ffa.yml");
         this.ffaConfig = new Config(this.getDataFolder() + "/ffa.yml");
+        playerSettingPool = new PlayerSettingPool();
         this.initFFAArea();
         this.registerCommands();
 //        Server.getInstance().getScheduler().scheduleRepeatingTask(new PluginTask(this){
@@ -62,7 +58,7 @@ public class PluginMain extends PluginBase {
 
     @Override
     public void onDisable() {
-        playerSettings.close();
+        playerSettingPool.close();
         this.getLogger().info("Plugin disable!");
     }
 
