@@ -35,9 +35,9 @@ public class PluginMain extends PluginBase {
     @Override
     public void onEnable() {
         instance = this;
-        Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(), "ffa-old.yml");
-        this.saveResource("ffa-old.yml");
-        this.ffaConfig = new Config(this.getDataFolder() + "/ffa-old.yml");
+        Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(), "ffa.yml");
+        this.saveResource("ffa.yml");
+        this.ffaConfig = new Config(this.getDataFolder() + "/ffa.yml");
         playerSettingPool = new PlayerSettingPool();
         this.initFFAArea();
         this.registerCommands();

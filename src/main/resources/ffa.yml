@@ -1,47 +1,43 @@
-#Fist:
-#  position:
-#  - 929
-#  - 0
-#  - 929
-#  - 1071
-#  - 255
-#  - 1071
-#  - 1000
-#  - 200
-#  - 1000
-#  - world
-#  spawn:
-#  - 1000
-#  - 200
-#  - 1000
-#  - lobby
-#  equipment: null
-#  armor: null
-#  allow-attack-damage: true
-#  allow-break-block: false
-#  allow-place-block: false
-#  blood-back-when-kill: true
-#  reset-equipment-when-kill: true
-#  join-title: §lFist
-#  join-subtitle: ' '
-#  join-message: Fight!
-#  join-actionbar: ' '
-#  exit-title: ' '
-#  exit-subtitle: ' '
-#  exit-message: ' '
-#  exit-actionbar: ' '
-#  kill-title: ' '
-#  kill-subtitle: ' '
-#  kill-message: Well done!
-#  kill-actionbar: ' '
-#  ac: 8
-#  basekb: 0.4
-#  xzkb-g: 0.64
-#  ykb-g: 0.87
-#  xzkb: 0.67
-#  ykb: 1.055
-#  player-max-health: 20
-#  kill-broad-cast: Fist >> §7{Damager}§r killed §7{Dead}
-#  clear-items-time: 1
-#  money-give-count-when-kill: 1
-#  money-remove-count-when-dead: 1
+Fist:
+  position:
+  - 1000
+  - 65
+  - 1000
+  - 1100
+  - 360
+  - 1100
+  spawn:
+  - 1050
+  - 65
+  - 1050
+  - lobby
+  equipment: null
+  armor: null
+  allow-attack-damage: true
+  allow-break-block: false
+  allow-place-block: false
+  blood-back-when-kill: true
+  reset-equipment-when-kill: true
+  join-title: §lFist
+  join-subtitle: ' '
+  join-message: Fight!
+  join-actionbar: ' '
+  exit-title: ' '
+  exit-subtitle: ' '
+  exit-message: ' '
+  exit-actionbar: ' '
+  kill-title: ' '
+  kill-subtitle: ' '
+  kill-message: Well done!
+  kill-actionbar: ' '
+  ac: 8
+  basekb: 0.4
+  xzkb-g: 0.64
+  ykb-g: 0.87
+  xzkb: 0.67
+  ykb: 1.055
+  player-max-health: 20
+  kill-broad-cast: Fist >> §7{Damager}§r killed §7{Dead}
+  clear-items-time: 1
+  money-give-count-when-kill: 1
+  money-remove-count-when-dead: 1
