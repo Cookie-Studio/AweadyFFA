@@ -23,6 +23,7 @@ public class FFACommand extends Command {
                 .map((a) -> new FElementButton(a.getAreaName(),a))
                 .collect(Collectors.toList()))
                 .setResponseAction((e) -> {
+                    if (e.getResponse() == null) return;
                     FElementButton fElementButton = (FElementButton) ((FormResponseSimple)e.getResponse()).getClickedButton();
                     PlayerSettingMap entry = PluginMain.getInstance().getPlayerSettingPool().getSettings().get(e.getPlayer().getName());
                     fElementButton.getFfaArea().joinAndTp(e.getPlayer(), entry.isRandomTp());})

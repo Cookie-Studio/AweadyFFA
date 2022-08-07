@@ -41,7 +41,6 @@ public class FFAArea {
     private HashSet<Player> players = new HashSet<>();
     private Position cornerPosition1;
     private Position cornerPosition2;
-    private Position middlePosition;
     private Position spawnPosition;
     private boolean allowAttackDamage;
     private boolean bloodBackWhenKill;
@@ -72,11 +71,10 @@ public class FFAArea {
         this.areaName = name;
         Config config = PluginMain.getInstance().getFfaConfig();
         ArrayList posInfo = (ArrayList) config.get(name + ".position");
-        cornerPosition1 = new Position((int) posInfo.get(0),(int)posInfo.get(1),(int)posInfo.get(2), Server.getInstance().getLevelByName((String)posInfo.get(9)));
-        cornerPosition2 = new Position((int)posInfo.get(3),(int)posInfo.get(4),(int)posInfo.get(5), Server.getInstance().getLevelByName((String)posInfo.get(9)));
-        middlePosition = new Position((int)posInfo.get(6),(int)posInfo.get(7),(int)posInfo.get(8), Server.getInstance().getLevelByName((String)posInfo.get(9)));
         ArrayList spawn = (ArrayList) config.get(name + ".spawn");
         spawnPosition = new Position((int)spawn.get(0),(int)spawn.get(1),(int)spawn.get(2),Server.getInstance().getLevelByName((String)spawn.get(3)));
+        cornerPosition1 = new Position((int) posInfo.get(0),(int)posInfo.get(1),(int)posInfo.get(2), spawnPosition.level);
+        cornerPosition2 = new Position((int)posInfo.get(3),(int)posInfo.get(4),(int)posInfo.get(5), spawnPosition.level);
         this.allowAttackDamage = (boolean) config.get(name +".allow-attack-damage");
         this.joinTitle = (String) config.get(name +".join-title");
         this.joinSubTitle = (String) config.get(name +".join-subtitle");
@@ -102,7 +100,7 @@ public class FFAArea {
         this.allowPlaceBlock = (boolean) config.get(name + ".allow-place-block");
         this.playerMaxHealth = (int) config.get(name + ".player-max-health");
         this.killBroadCast = (String) config.get(name + ".kill-broad-cast");
-        this.clearItemsTime = (int) config.get(name + ".clear-items-time") * 4;
+        this.clearItemsTime = config.getInt(name + ".clear-items-time") * 4;
         if (this.clearItemsTime == 0) this.clearItemsTime = 1;
         this.moneyGiveCountWhenKill = (int) config.get(name + ".money-give-count-when-kill");
         this.moneyRemoveCountWhenKill = (int) config.get(name + ".money-remove-count-when-dead");
@@ -166,7 +164,7 @@ public class FFAArea {
     }
 
     public Position getTeleportPosition(){
-        return this.middlePosition;
+        return this.spawnPosition;
     }
 
     public Position getRandomTeleportPosition(){
@@ -180,7 +178,7 @@ public class FFAArea {
         Random r = new Random();
         double x = r.nextInt((int) (cornerPosition2.x - cornerPosition1.x)) + 1 + cornerPosition1.x;
         double z = r.nextInt((int) (cornerPosition2.z - cornerPosition1.z)) + 1 + cornerPosition1.z;
-        return new Position(x, middlePosition.y,z, middlePosition.level);
+        return new Position(x, this.spawnPosition.y,z, this.spawnPosition.level);
     }
 
     public FFAAreaKBInfo getFfaAreaKBInfo() {
@@ -331,9 +329,9 @@ public class FFAArea {
             }
             if (clearItemsTime > 0) {
                 if (runTick / clearItemsTime == 1) {
-                    for (Entity entity : middlePosition.getLevel().getEntities())
+                    for (Entity entity : spawnPosition.getLevel().getEntities())
                         if (entity instanceof EntityItem && isInArea(entity.getPosition()))
-                            middlePosition.getLevel().removeEntity(entity);
+                            spawnPosition.getLevel().removeEntity(entity);
                     runTick = 0;
                 } else {
                     runTick++;

@@ -12,7 +12,7 @@ import cn.nukkit.utils.Config;
 import com.google.gson.Gson;
 import lombok.Getter;
 import cn.cookiestudio.aweadyffa.commands.FFACommand;
-import java.nio.file.Files;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -35,9 +35,9 @@ public class PluginMain extends PluginBase {
     @Override
     public void onEnable() {
         instance = this;
-        Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(),"ffa.yml");
-        this.saveResource("ffa.yml");
-        this.ffaConfig = new Config(this.getDataFolder() + "/ffa.yml");
+        Path configPath = Paths.get(PluginMain.getInstance().getDataFolder().toString(), "ffa-old.yml");
+        this.saveResource("ffa-old.yml");
+        this.ffaConfig = new Config(this.getDataFolder() + "/ffa-old.yml");
         playerSettingPool = new PlayerSettingPool();
         this.initFFAArea();
         this.registerCommands();
